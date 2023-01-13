@@ -1,7 +1,9 @@
 const express = require('express');
 const { initializeConfigMiddlewares, initializeErrorMiddlwares } = require('./middlewares');
 const userRoutes = require('../controllers/user.routes');
+const loginRoutes = require('../controllers/auth.route');
 const { sequelize } = require('../models/sqlite.db');
+const dotenv = require('dotenv');
 
 class WebServer {
   app = undefined;
@@ -10,6 +12,9 @@ class WebServer {
 
   constructor() {
     this.app = express();
+    dotenv.config()
+    sequelize.sync();
+    // sequelize.sync({force:true});
 
     initializeConfigMiddlewares(this.app);
     this._initializeRoutes();
@@ -28,6 +33,7 @@ class WebServer {
 
   _initializeRoutes() {
     this.app.use('/users', userRoutes.initializeRoutes());
+    this.app.use('/auth', loginRoutes.initializeRoutes());
   }
 }
 

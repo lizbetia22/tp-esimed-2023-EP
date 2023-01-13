@@ -1,7 +1,7 @@
-const { users } = require('./db');
+// const { users } = require('./db');
 const uuid = require('uuid');
-const md5 = require('md5');
 const { User } = require('../models/user.model.js');
+const bcrypt = require('bcryptjs');
 
 exports.getUsers = async () => await User.findAll();
 
@@ -10,7 +10,8 @@ exports.getUserByFirstName =  async (firstName) => {
 };
 
 exports.createUser = async (body) => {
-  const hashedPassword = md5(body.password);
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(body.password, salt);
   const user = body;
   user.id = uuid.v4();
   user.password = hashedPassword;
@@ -21,6 +22,9 @@ exports.createUser = async (body) => {
 exports.updateUser =  async (id, data)  => {
   const foundUser = await User.findOne({ where: { id } });
 
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(body.password, salt);
+
   if (!foundUser) {
     throw new Error('User not found');
   }
@@ -28,7 +32,7 @@ exports.updateUser =  async (id, data)  => {
   await User.update({
     firstName: data.firstName || foundUser.firstName,
     lastName: data.lastName || foundUser.lastName,
-    password: data.password ? md5(data.password) : foundUser.password,
+    password: data.password ? hashedPassword : foundUser.password,
   }, { where: { id } });
 };
 

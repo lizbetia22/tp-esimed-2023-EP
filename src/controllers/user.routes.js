@@ -3,17 +3,10 @@ const router = express.Router();
 const userRepository = require('../models/user-repository');
 const { Sequelize, Model, DataTypes } = require('sequelize');
 const { User } = require('../models/user.model.js');
+const { body, validationResult } = require('express-validator');
 
 router.get('/test-sqlite', async (req, res) => {
-  // const sequelize = new Sequelize('sqlite::memory:');
-  // const User = sequelize.define('User', {
-  //   firstName: DataTypes.STRING,
-  //   lastName: DataTypes.STRING,
-  //   password: DataTypes.STRING,
-  // });
-
-  // await User.sync()
-
+  
   const eliza = await User.create({
     firstName : 'Yelyzaveta',
     lastName: 'Piunova',
@@ -40,9 +33,18 @@ router.get('/:firstName', async (req, res) => {
   res.send(foundUser);
 });
 
-router.post('/', async (req, res) => {
-  await userRepository.createUser(req.body);
-  res.status(201).end();
+router.post('/',
+  body('firstName').isAlphanumeric(),
+  body('lastName').isAlphanumeric(),
+  body('password').isLength({ min: 5 }),
+
+      async (req, res) => {
+      const errors = validationResult(req);
+          if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+      }
+    await userRepository.createUser(req.body);
+    res.status(201).end();
 });
 
 router.put('/:id', async (req, res) => {

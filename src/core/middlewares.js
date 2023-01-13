@@ -1,10 +1,18 @@
 const express = require('express');
 const { DateTime } = require('luxon');
-var cors = require('cors')
+var cors = require('cors');
+var { expressjwt: jwt } = require("express-jwt");
+require('dotenv').config();
 
 const initJsonHandlerMiddlware = (app) => app.use(express.json());
-const middlewareStatic = (app) => app.use(express.static('public'))
-const middlewareCors = (app) => app.use(cors())
+const middlewareStatic = (app) => app.use(express.static('public'));
+const middlewareCors = (app) => app.use(cors());
+const middleWareJwt = (app) => app.use(
+  jwt({
+    secret: process.env.SECRET_KEY,
+    algorithms: ["HS256"],
+  }).unless({ path: [{ url: "/users", methods: ["POST"] }, { url: "/auth/login", methods: [ "POST"] }] })
+);
 
 const initLoggerMiddlware = (app) => {
   app.use((req, res, next) => {
@@ -30,6 +38,7 @@ exports.initializeConfigMiddlewares = (app) => {
   initLoggerMiddlware(app);
   middlewareStatic(app);
   middlewareCors(app);
+  middleWareJwt(app)
 }
 
 exports.initializeErrorMiddlwares = (app) => {

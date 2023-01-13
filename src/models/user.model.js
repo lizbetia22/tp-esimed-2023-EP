@@ -4,9 +4,8 @@ const {sequelize} = require('../models/sqlite.db');
 exports.User = sequelize.define('User', {
   // Model attributes are defined here
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     primaryKey: true,
-    autoIncrement: true,
     allowNull: false
   },
   firstName: {
