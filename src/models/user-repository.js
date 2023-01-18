@@ -33,6 +33,7 @@ exports.updateUser =  async (id, data)  => {
     firstName: data.firstName || foundUser.firstName,
     lastName: data.lastName || foundUser.lastName,
     password: data.password ? hashedPassword : foundUser.password,
+    isAdmin: data.isAdmin || foundUser.isAdmin,
   }, { where: { id } });
 };
 
