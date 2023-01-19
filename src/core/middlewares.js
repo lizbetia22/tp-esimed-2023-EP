@@ -6,13 +6,11 @@ require('dotenv').config();
 const guard = require('express-jwt-permissions')();
 
 
-const middlewarePermissionsErrors = (app) => {
-app.use(function (err, req, res, next) {
-  if (err.code === 'permission_denied') {
-    res.status(403).send('Forbidden');
-  }
-});
-};
+// const middlewarePermissionsErrors = (app) => {
+// app.use(function (err, req, res, next) {
+
+// });
+// };
 
 const initJsonHandlerMiddlware = (app) => app.use(express.json());
 const middlewareStatic = (app) => app.use(express.static('public'));
@@ -49,12 +47,16 @@ exports.initializeConfigMiddlewares = (app) => {
   middlewareStatic(app);
   middlewareCors(app);
   middleWareJwt(app);
-  middlewarePermissionsErrors(app);
+  //middlewarePermissionsErrors(app);
 
 }
 
 exports.initializeErrorMiddlwares = (app) => {
   app.use((err, req, res, next) => {
+    if (err.code === 'permission_denied') {
+      res.status(403).send('Forbidden');
+      return
+    }
     res.status(500).send(err.message);
   });
 }

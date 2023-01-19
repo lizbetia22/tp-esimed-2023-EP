@@ -4,8 +4,12 @@ const userRepository = require('../models/user-repository');
 const { Sequelize, Model, DataTypes } = require('sequelize');
 const { User } = require('../models/user.model.js');
 const { body, validationResult } = require('express-validator');
-const guard = require('express-jwt-permissions')();
+const guard = require('express-jwt-permissions')({
+  requestProperty: 'auth',
+});
+
 router.get('/test-sqlite', async (req, res) => {
+
   
   const eliza = await User.create({
     firstName : 'Yelyzaveta',
@@ -37,7 +41,7 @@ router.post('/',
   body('firstName').isAlphanumeric(),
   body('lastName').isAlphanumeric(),
   body('password').isLength({ min: 5 }),
-  body('isADmin').isAlphanumeric(),
+  body('isAdmin').isAlphanumeric(),
 
       async (req, res) => {
       const errors = validationResult(req);
@@ -48,7 +52,7 @@ router.post('/',
     res.status(201).end();
 });
 
-router.put('/:id', guard.check(['admin']), async (req, res) => {
+router.put('/:id',guard.check(['admin']), async (req, res) => {
   await userRepository.updateUser(req.params.id, req.body).catch((err) => res.status(500).send(err.message));
   res.status(204).end();
 });
